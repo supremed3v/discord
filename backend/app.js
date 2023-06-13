@@ -3,10 +3,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./config/config.js";
-
+import { init } from "./utils/socket.js";
+import messagesRoutes from "./routes/messageRoutes.js";
 dotenv.config();
 connectDB();
 const app = express();
+const httpServer = init(app);
 
 app.use(
   cors({
@@ -25,4 +27,6 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: "internal server error" });
 });
 
-export default app;
+app.use("/api", messagesRoutes);
+
+export default httpServer;
