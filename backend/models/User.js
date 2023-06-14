@@ -65,6 +65,12 @@ const userSchema = new Schema(
         ref: "Channel",
       },
     ],
+    created_channels: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Channel",
+      },
+    ],
     notifications: [
       {
         type: Schema.Types.ObjectId,
