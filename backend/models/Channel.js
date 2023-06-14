@@ -67,6 +67,12 @@ const channelSchema = new Schema({
     default: "public",
     enums: ["public", "private"],
   },
+  invitedUsers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 export const Channel = mongoose.model("Channel", channelSchema);
