@@ -12,6 +12,12 @@ export const init = (app) => {
   // Set up Socket.IO with the http server
   io = new Server(httpServer, {
     // Additional configuration options can be added here
+
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
 
   return httpServer;
