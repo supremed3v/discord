@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { getIO } from "../utils/socket.js";
+import { sendToken } from "../utils/authMiddleware.js";
 
 export const signup = async (req, res) => {
   try {
@@ -29,11 +30,7 @@ export const signup = async (req, res) => {
 
     await user.save();
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.status(200).json({ user, token });
+    sendToken(user, 200, res);
   } catch (error) {
     res.status(500).json({ message: "User registration failed" });
   }
@@ -46,19 +43,28 @@ export const login = async (req, res) => {
     const user = await User.findOne({ $or: [{ username }, { email }] });
     if (!user) return res.status(400).json({ message: "User does not exist" });
 
+    console.log("User password from database:", user.password);
+    console.log("Provided password for login:", password);
+
+    // Trim the provided password to remove leading/trailing white spaces
+    const trimmedPassword = password.trim();
+
+    console.log("Trimmed password:", trimmedPassword);
     // check if password is correct
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      trimmedPassword,
+      user.password
+    );
+    console.log("result of password validation", isPasswordValid);
     if (!isPasswordValid)
       return res.status(400).json({ message: "Invalid Password" });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.status(200).json({ user, token });
+    sendToken(user, 200, res);
+    // res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
+    console.error("Login failed", error);
   }
 };
 

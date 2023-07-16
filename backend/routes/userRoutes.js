@@ -7,6 +7,7 @@ import {
   sendFriendRequest,
   acceptFriendRequest,
 } from "../controllers/userController.js";
+import { authMiddleware } from "../utils/authMiddleware.js";
 
 const router = express.Router();
 
@@ -16,8 +17,8 @@ router.post("/login", login);
 
 router.get("/search", searchUser);
 
-router.post("/friend-request", sendFriendRequest);
+router.post("/friend-request", authMiddleware, sendFriendRequest);
 
-router.post("/friend-request/accept", acceptFriendRequest);
+router.post("/friend-request/accept", authMiddleware, acceptFriendRequest);
 
 export default router;

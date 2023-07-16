@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { nanoid } from "nanoid";
 
 const { Schema } = mongoose;
 
@@ -73,6 +74,10 @@ const channelSchema = new Schema({
       ref: "User",
     },
   ],
+  inviteCode: {
+    type: String,
+    default: () => nanoid(10),
+  },
 });
 
 export const Channel = mongoose.model("Channel", channelSchema);

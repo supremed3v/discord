@@ -6,6 +6,7 @@ import { connectDB } from "./config/config.js";
 import { init } from "./utils/socket.js";
 import messagesRoutes from "./routes/messageRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import channelRoutes from "./routes/channelRoutes.js";
 dotenv.config();
 connectDB();
 const app = express();
@@ -30,5 +31,6 @@ app.use((err, req, res, next) => {
 
 app.use("/api", messagesRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/channel", channelRoutes);
 
 export default httpServer;

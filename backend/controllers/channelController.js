@@ -5,22 +5,34 @@ import { nanoid } from "nanoid";
 
 export const createChannel = async (req, res) => {
   try {
-    const { name, description, type, participants } = req.body;
+    const { name, description, type } = req.body;
+    // check for cookie
+
+    console.log(req.cookies);
     const created_by = req.user._id;
 
     const channel = new Channel({
       name,
       description,
       type,
-      participants,
+      participants: req.user._id,
       created_by,
+      avatar: {
+        public_id: "avatar/avatar-1.png",
+        url: "https://res.cloudinary.com/dx3a3nnee/image/upload/v1624349733/avatar/avatar-1.png",
+      },
     });
 
     await channel.save();
 
     getIO().emit("newChannel", channel);
+
+    res.status(201).json(channel);
   } catch (error) {
-    console.error("Error creating channel", error);
+    console.log(error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Channel name already exists" });
+    }
     res.status(500).json({ message: "Server error" });
   }
 };
