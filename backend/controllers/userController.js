@@ -87,24 +87,26 @@ export const searchUser = async (req, res) => {
 
 export const sendFriendRequest = async (req, res) => {
   try {
-    const { senderId, recipientId } = req.body;
+    const { recipientUsername } = req.body;
 
     // Find the sender and recipient
 
+    const senderId = req.user._id;
+
     const sender = await User.findById(senderId);
-    const recipient = await User.findById(recipientId);
+    const recipient = await User.findOne({ username: recipientUsername });
 
     if (!sender || !recipient)
       return res.status(400).json({ message: "User not found" });
 
     // Check if the recipient has already received a friend request from the sender
 
-    if (recipient.friendRequestsSent.includes(senderId))
+    if (recipient.friendRequestsSent.includes(recipientUsername))
       return res.status(400).json({ message: "Friend request already sent" });
 
     // Add the recipient to the sender's friendRequestsSent array
 
-    sender.friendRequestsSent.push(recipientId);
+    sender.friendRequestsSent.push(recipient._id);
 
     // Add the sender to the recipient's friendRequestsReceived array
 

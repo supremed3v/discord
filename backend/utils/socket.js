@@ -20,6 +20,23 @@ export const init = (app) => {
     },
   });
 
+  io.on("connection", (socket) => {
+    socket.on("callUser", ({ from, to }) => {
+      socket.to(to).emit("callUser", { from, to });
+    });
+    socket.on("answerCall", ({ to, signal }) => {
+      socket.to(to).emit("answerCall", { signal });
+    });
+
+    socket.on("iceCandidate", ({ to, candidate }) => {
+      socket.to(to).emit("iceCandidate", { candidate });
+    });
+
+    socket.on("disconnect", () => {
+      socket.broadcast.emit("callEnded");
+    });
+  });
+
   return httpServer;
 };
 
