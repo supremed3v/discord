@@ -5,13 +5,23 @@ import { getIO } from "../utils/socket.js";
 
 export const signup = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, firstName, lastName } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    const user = new User({ username, email, password });
+    const user = new User({
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+      avatar: {
+        public_id: "avatar/avatar-1.png",
+        url: "https://res.cloudinary.com/dx3a3nnee/image/upload/v1624349733/avatar/avatar-1.png",
+      },
+    });
 
     const salt = await bcrypt.genSalt(10);
 
