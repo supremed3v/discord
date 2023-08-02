@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Loader from "../helpers/Loader";
 import {
   Avatar,
   Button,
@@ -14,6 +15,8 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { styled } from "@mui/material/styles";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Paper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(8),
@@ -42,11 +45,35 @@ const SwitchContainer = styled(Grid)(({ theme }) => ({
 
 const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
+  const [formFields, setFormFields] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    // Handle form field changes here (update the state of the formFields object)
+    setFormFields((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const { login, loading, user } = useAuth();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle login or signup form submission here
-    console.log("Submitted!");
+    if (isSignup) {
+      // Handle signup here
+    } else {
+      // Handle login here
+      login(formFields.email, formFields.password);
+      if (loading) return <Loader />;
+      if (user) navigate("/dashboard");
+    }
   };
 
   const handleSwitch = () => {
@@ -74,6 +101,8 @@ const Login = () => {
             name="email"
             autoComplete="email"
             autoFocus
+            value={formFields.email}
+            onChange={handleChange}
           />
           <TextField
             variant="outlined"
@@ -85,6 +114,8 @@ const Login = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={formFields.password}
+            onChange={handleChange}
           />
           {isSignup && (
             <TextField

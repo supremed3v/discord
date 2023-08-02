@@ -1,9 +1,8 @@
 import Login from "./components/Login";
-import Versions from "./components/Versions";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { Typography } from "@mui/material";
-import { Dashboard } from "./components/Dashboard";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -20,7 +19,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/*" element={<Dashboard />} />
           </Routes>
         </AuthProvider>
       </div>
