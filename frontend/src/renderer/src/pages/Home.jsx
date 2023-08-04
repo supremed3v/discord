@@ -4,7 +4,10 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-
+import { Divider, TextField } from "@mui/material";
+import GroupIcon from "@mui/icons-material/Group";
+import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -45,13 +48,17 @@ export default function Home() {
     setValue(newValue);
   };
 
+  const [search, setSearch] = React.useState("");
+
   return (
     <Box
       sx={{
         flexGrow: 1,
-        bgcolor: "background.paper",
+        // bgcolor: "background.paper",
         display: "flex",
-        height: 224,
+        height: "100vh",
+        justifyContent: "left",
+        alignItems: "left",
       }}
     >
       <Tabs
@@ -60,15 +67,42 @@ export default function Home() {
         value={value}
         onChange={handleChange}
         aria-label="Vertical tabs example"
-        sx={{ borderRight: 1, borderColor: "divider" }}
+        sx={{ borderRight: 1, borderColor: "divider", width: "240px" }}
       >
-        <Tab label="Item One" {...a11yProps(0)} />
-        <Tab label="Item Two" {...a11yProps(1)} />
-        <Tab label="Item Three" {...a11yProps(2)} />
-        <Tab label="Item Four" {...a11yProps(3)} />
-        <Tab label="Item Five" {...a11yProps(4)} />
-        <Tab label="Item Six" {...a11yProps(5)} />
-        <Tab label="Item Seven" {...a11yProps(6)} />
+        <TextField
+          id="filled-basic"
+          placeholder="Find or start a conversation"
+          variant="filled"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <Divider
+          sx={{
+            bgcolor: "#86a5b1",
+          }}
+        />
+        <Tab
+          {...a11yProps(0)}
+          icon={<GroupIcon />}
+          label="Friends"
+          iconPosition="start"
+        />
+        <Tab
+          label="Stage Discovery"
+          icon={<ConnectWithoutContactIcon />}
+          iconPosition="start"
+          {...a11yProps(1)}
+        />
+        <Tab
+          label="Library"
+          icon={<BusinessCenterIcon />}
+          iconPosition="start"
+          {...a11yProps(2)}
+        />
+        <Tab label="Nitro" {...a11yProps(3)} />
+        <Tab label="Item Six" {...a11yProps(4)} />
+        <Tab label="Item Seven" {...a11yProps(5)} />
       </Tabs>
       <TabPanel value={value} index={0}>
         Item One
@@ -87,9 +121,6 @@ export default function Home() {
       </TabPanel>
       <TabPanel value={value} index={5}>
         Item Six
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-        Item Seven
       </TabPanel>
     </Box>
   );

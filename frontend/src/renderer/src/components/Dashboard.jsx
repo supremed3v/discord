@@ -16,19 +16,14 @@ import {
   Mail as MailIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { Link, Route, Routes, Outlet, useLocation } from "react-router-dom";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
 import Home from "../pages/Home";
 
-const drawerWidth = 240;
+const drawerWidth = 0;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-  },
-  appBar: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    backgroundColor: "#86a5b1",
   },
   drawer: {
     width: drawerWidth,
@@ -46,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   miniDrawerPaper: {
-    width: theme.spacing(9),
+    width: "90px",
     backgroundColor: "#2f3241",
     overflowX: "hidden",
     transition: theme.transitions.create("width", {
@@ -54,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     alignItems: "center",
-    // justifyContent: "center",
   },
   drawerHeader: {
     display: "flex",
@@ -74,13 +68,23 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-  contentShift: {
+    // padding: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.leavingScreen,
     }),
+    marginLeft: 0,
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+    },
+  },
+  contentShift: {
+    [theme.breakpoints.up("md")]: {
+      marginLeft: -1, // Add 1px to ensure the content doesn't overlap with the mini sidebar
+    },
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+    },
     marginLeft: 0,
   },
   miniListItemIcon: {
@@ -92,16 +96,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Dashboard = () => {
   const classes = useStyles();
-  const [open, setOpen] = useState(true);
   const location = useLocation();
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   const drawerItems = [
     { label: "Home", icon: <HomeIcon />, to: "/dashboard" },
@@ -115,20 +110,10 @@ const Dashboard = () => {
         className={classes.drawer}
         variant="permanent"
         classes={{
-          paper: open ? classes.drawerPaper : classes.miniDrawerPaper,
+          paper: classes.miniDrawerPaper,
         }}
       >
-        <div className={open ? classes.drawerHeader : classes.miniDrawerHeader}>
-          {open ? (
-            <IconButton onClick={handleDrawerClose}>
-              <MenuIcon style={{ color: "#86a5b1" }} />
-            </IconButton>
-          ) : (
-            <IconButton onClick={handleDrawerOpen}>
-              <MenuIcon style={{ color: "#86a5b1" }} />
-            </IconButton>
-          )}
-        </div>
+        <div className={classes.miniDrawerHeader}>discord</div>
         <Divider />
         <List>
           {drawerItems.map(({ label, icon, to }) => (
@@ -138,19 +123,16 @@ const Dashboard = () => {
               component={Link}
               to={to}
               selected={location.pathname === to}
-              onClick={handleDrawerClose}
             >
-              <ListItemIcon className={open ? "" : classes.miniListItemIcon}>
+              <ListItemIcon className={classes.miniListItemIcon}>
                 {icon}
               </ListItemIcon>
-              {open && <ListItemText primary={label} />}
+              {/* {open && <ListItemText primary={label} />} */}
             </ListItem>
           ))}
         </List>
       </Drawer>
-      <main
-        className={`${classes.content} ${open ? classes.contentShift : ""}`}
-      >
+      <main className={`${classes.content}`}>
         <div className={classes.toolbar} />
         <Routes>
           <Route path="/" element={<Home />} />

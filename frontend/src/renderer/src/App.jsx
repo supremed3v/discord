@@ -7,15 +7,17 @@ import Dashboard from "./components/Dashboard";
 function App() {
   return (
     <BrowserRouter>
-      <div className="container">
-        <Typography
-          variant="h1"
-          style={{
-            textAlign: "center",
-          }}
-        >
-          TalkVerse
-        </Typography>
+      <div
+        className="container"
+        style={{
+          paddingTop: "10px",
+          paddingLeft: "0px",
+          paddingRight: "0px",
+          paddingBottom: "0px",
+          marginTop: "0px",
+          marginLeft: "100px",
+        }}
+      >
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Login />} />
