@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
   Drawer,
   List,
@@ -19,14 +17,52 @@ import {
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import { Link, Route, Routes, Outlet, useLocation } from "react-router-dom";
+import Home from "../pages/Home";
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-  // ... your other styles here
+  root: {
+    display: "flex",
+  },
+  appBar: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    backgroundColor: "#86a5b1",
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    backgroundColor: "#2f3241",
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    backgroundColor: "#2f3241",
+
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
   miniDrawerPaper: {
-    width: theme.spacing(9), // Set the width for the mini sidebar
-    // backgroundColor: "#000", // Set your desired background color for the mini sidebar here
+    width: theme.spacing(9),
+    backgroundColor: "#2f3241",
+    overflowX: "hidden",
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    alignItems: "center",
+    // justifyContent: "center",
+  },
+  drawerHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
+    color: "#86a5b1",
   },
   miniDrawerHeader: {
     display: "flex",
@@ -34,9 +70,23 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
+    color: "#86a5b1",
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
   },
   miniListItemIcon: {
     justifyContent: "center",
+    color: "#86a5b1",
+    alignItems: "center",
   },
 }));
 
@@ -68,44 +118,42 @@ const Dashboard = () => {
           paper: open ? classes.drawerPaper : classes.miniDrawerPaper,
         }}
       >
-        {open ? (
-          <>
-            <div className={classes.drawerHeader}>
-              <IconButton onClick={handleDrawerClose}>
-                <MenuIcon />
-              </IconButton>
-            </div>
-            <Divider />
-            <List>
-              {drawerItems.map(({ label, icon, to }) => (
-                <ListItem
-                  button
-                  key={label}
-                  component={Link}
-                  to={to}
-                  selected={location.pathname === to}
-                  onClick={handleDrawerClose}
-                >
-                  <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={label} />
-                </ListItem>
-              ))}
-            </List>
-          </>
-        ) : (
-          <div className={classes.miniDrawerHeader}>
-            <IconButton onClick={handleDrawerOpen}>
-              <MenuIcon />
+        <div className={open ? classes.drawerHeader : classes.miniDrawerHeader}>
+          {open ? (
+            <IconButton onClick={handleDrawerClose}>
+              <MenuIcon style={{ color: "#86a5b1" }} />
             </IconButton>
-          </div>
-        )}
+          ) : (
+            <IconButton onClick={handleDrawerOpen}>
+              <MenuIcon style={{ color: "#86a5b1" }} />
+            </IconButton>
+          )}
+        </div>
+        <Divider />
+        <List>
+          {drawerItems.map(({ label, icon, to }) => (
+            <ListItem
+              button
+              key={label}
+              component={Link}
+              to={to}
+              selected={location.pathname === to}
+              onClick={handleDrawerClose}
+            >
+              <ListItemIcon className={open ? "" : classes.miniListItemIcon}>
+                {icon}
+              </ListItemIcon>
+              {open && <ListItemText primary={label} />}
+            </ListItem>
+          ))}
+        </List>
       </Drawer>
       <main
         className={`${classes.content} ${open ? classes.contentShift : ""}`}
       >
         <div className={classes.toolbar} />
         <Routes>
-          <Route path="/" element={<Outlet />} />
+          <Route path="/" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="mail" element={<Mail />} />
           {/* Additional routes can be added here */}
@@ -115,7 +163,6 @@ const Dashboard = () => {
   );
 };
 
-const Home = () => <Typography variant="h4">Home Page</Typography>;
 const Inbox = () => <Typography variant="h4">Inbox Page</Typography>;
 const Mail = () => <Typography variant="h4">Mail Page</Typography>;
 

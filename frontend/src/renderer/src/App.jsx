@@ -14,7 +14,7 @@ function App() {
             textAlign: "center",
           }}
         >
-          Discord Clone
+          TalkVerse
         </Typography>
         <AuthProvider>
           <Routes>
