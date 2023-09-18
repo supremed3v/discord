@@ -3,11 +3,12 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import { Divider, TextField } from "@mui/material";
+import { Divider, TextField, Box, Button } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import axios from "axios";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -49,6 +50,26 @@ export default function Home() {
   };
 
   const [search, setSearch] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchSearchResults = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/user/search?q=${search}`
+        );
+        console.log(res.data);
+        setSearchResults(res.data);
+      } catch (error) {
+        console.log(error);
+        setSearchResults([]);
+      }
+    };
+
+    if (search !== "") {
+      fetchSearchResults();
+    }
+  }, [search]);
 
   return (
     <Box
@@ -69,21 +90,15 @@ export default function Home() {
         aria-label="Vertical tabs example"
         sx={{ borderRight: 1, borderColor: "divider", width: "240px" }}
       >
-        <TextField
-          id="filled-basic"
-          placeholder="Find or start a conversation"
-          variant="filled"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <Divider
-          sx={{
-            bgcolor: "#86a5b1",
-          }}
-        />
         <Tab
           {...a11yProps(0)}
+          icon={<PersonSearchIcon />}
+          label="Search..."
+          iconPosition="start"
+        />
+
+        <Tab
+          {...a11yProps(1)}
           icon={<GroupIcon />}
           label="Friends"
           iconPosition="start"
@@ -92,20 +107,43 @@ export default function Home() {
           label="Stage Discovery"
           icon={<ConnectWithoutContactIcon />}
           iconPosition="start"
-          {...a11yProps(1)}
+          {...a11yProps(2)}
         />
         <Tab
           label="Library"
           icon={<BusinessCenterIcon />}
           iconPosition="start"
-          {...a11yProps(2)}
+          {...a11yProps(3)}
         />
-        <Tab label="Nitro" {...a11yProps(3)} />
-        <Tab label="Item Six" {...a11yProps(4)} />
-        <Tab label="Item Seven" {...a11yProps(5)} />
+        <Tab label="Nitro" {...a11yProps(4)} />
       </Tabs>
       <TabPanel value={value} index={0}>
-        Item One
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <TextField
+            id="filled-basic"
+            placeholder="Find or start a conversation"
+            variant="filled"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button
+            sx={{
+              marginLeft: "10px",
+            }}
+            variant="contained"
+          >
+            Search
+          </Button>
+        </Box>
+        {search !== "" && (
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            {searchResults.map((result) => (
+              <Box key={result.username}>
+                <Typography>{result.username}</Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
       </TabPanel>
       <TabPanel value={value} index={1}>
         Item Two

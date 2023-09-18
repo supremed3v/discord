@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { getIO } from "../utils/socket.js";
@@ -71,14 +70,16 @@ export const login = async (req, res) => {
 export const searchUser = async (req, res) => {
   const { q } = req.query;
   try {
-    const user = await User.find(
-      { username: { $regex: q, $options: "i" } },
-      {
-        email: { $regex: q, $options: "i" },
-      }
-    ).select("username avatar");
-    if (!user) return res.status(400).json({ message: "User not found" });
-    res.status(200).json(user);
+    const users = await User.find({
+      $or: [
+        { username: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+      ],
+    }).select("username avatar");
+    if (!users || users.length === 0) {
+      return res.status(400).json({ message: "User(s) not found" });
+    }
+    res.status(200).json(users);
   } catch (error) {
     console.error("Error searching user", error);
     res.status(500).json({ message: "Search failed" });
