@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
+import { useAuth } from "../context/AuthContext";
 import { Divider, TextField, Box, Button } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import axios from "axios";
+import Friends from "../components/Friends";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -44,6 +46,8 @@ function a11yProps(index) {
 
 export default function Home() {
   const [value, setValue] = React.useState(0);
+  const { user } = useAuth();
+  console.log(user);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -146,7 +150,7 @@ export default function Home() {
         )}
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <Friends userData={user} />
       </TabPanel>
       <TabPanel value={value} index={2}>
         Item Three

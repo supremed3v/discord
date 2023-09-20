@@ -86,6 +86,13 @@ export const searchUser = async (req, res) => {
   }
 };
 
+export const getUserDetails = async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("-password");
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
 export const sendFriendRequest = async (req, res) => {
   try {
     const { recipientUsername } = req.body;

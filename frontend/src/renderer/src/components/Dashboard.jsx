@@ -16,7 +16,7 @@ import {
   Mail as MailIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import Home from "../pages/Home";
 
 const drawerWidth = 0;
@@ -98,6 +98,8 @@ const Dashboard = () => {
   const classes = useStyles();
   const location = useLocation();
 
+  console.log("rendered dashboard");
+
   const drawerItems = [
     { label: "Home", icon: <HomeIcon />, to: "/dashboard" },
     { label: "Inbox", icon: <InboxIcon />, to: "/dashboard/inbox" },
@@ -134,12 +136,12 @@ const Dashboard = () => {
       </Drawer>
       <main className={`${classes.content}`}>
         <div className={classes.toolbar} />
-        <Routes>
-          <Route path="/" element={<Home />} />
+        <Outlet>
+          <Route path="/dashboard" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="mail" element={<Mail />} />
-          {/* Additional routes can be added here */}
-        </Routes>
+          {/* Additional child routes can be added here */}
+        </Outlet>
       </main>
     </div>
   );

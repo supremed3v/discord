@@ -72,7 +72,7 @@ const Login = () => {
       // Handle login here
       login(formFields.email, formFields.password);
       if (loading) return <Loader />;
-      if (user) navigate("/dashboard");
+      if (user) navigate("/");
     }
   };
 

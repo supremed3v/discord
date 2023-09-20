@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -14,6 +14,20 @@ export function AuthProvider({ children }) {
   // State to store user data received from the backend
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [isMounted, setIsMounted] = useState(true);
+
+  useEffect(() => {
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      loadUser();
+    }
+  }, [isMounted]);
 
   // State to manage the authentication status
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,11 +44,24 @@ export function AuthProvider({ children }) {
         setUser(res.data.user);
         setIsAuthenticated(true);
       }
-      console.log(res.data);
       setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
+    }
+  };
+
+  const loadUser = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/user/me", {
+        withCredentials: true,
+      });
+      setUser(res.data.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.log(error);
+      setUser(null);
+      setIsAuthenticated(false);
     }
   };
 
@@ -49,7 +76,7 @@ export function AuthProvider({ children }) {
   // Provide the AuthContext values to the children components
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, logout, loading }}
+      value={{ user, isAuthenticated, login, logout, loading, loadUser }}
     >
       {children}
     </AuthContext.Provider>

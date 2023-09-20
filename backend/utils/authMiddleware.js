@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 
 export const authMiddleware = async (req, res, next) => {
-  const token = req.cookies.token;
+  const { token } = req.cookies;
 
   if (!token) {
     return res.status(401).json({ message: "Authentication token missing" });
@@ -25,6 +25,7 @@ export const sendToken = (user, statusCode, res) => {
   const options = {
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     httpOnly: true,
+    credentials: true,
   };
   res.status(statusCode).cookie("token", token, options).json({
     success: true,

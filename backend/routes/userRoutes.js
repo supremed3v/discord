@@ -6,6 +6,7 @@ import {
   searchUser,
   sendFriendRequest,
   acceptFriendRequest,
+  getUserDetails,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../utils/authMiddleware.js";
 
@@ -20,5 +21,7 @@ router.get("/search", searchUser);
 router.post("/friend-request", authMiddleware, sendFriendRequest);
 
 router.post("/friend-request/accept", authMiddleware, acceptFriendRequest);
+
+router.get("/me", authMiddleware, getUserDetails);
 
 export default router;
