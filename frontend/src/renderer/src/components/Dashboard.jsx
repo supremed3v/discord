@@ -8,6 +8,7 @@ import {
   ListItemText,
   Divider,
   IconButton,
+  Button,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import {
@@ -99,7 +100,12 @@ const Dashboard = () => {
   const classes = useStyles();
   const location = useLocation();
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    return <Redirect to="/login" />;
+  }
 
 
   const drawerItems = [
@@ -139,6 +145,12 @@ const Dashboard = () => {
               {/* {open && <ListItemText primary={label} />} */}
             </ListItem>
           ))}
+          <Button
+            onClick={handleLogout}
+            style={{ color: "#86a5b1", marginTop: "auto" }}
+          >
+            <Typography>Logout</Typography>
+          </Button>
         </List>
       </Drawer>
       <main className={`${classes.content}`}>
@@ -149,6 +161,7 @@ const Dashboard = () => {
           <Route path="inbox" element={<Inbox />} />
           <Route path="mail" element={<Mail />} />
         </Routes>
+
       </main>
     </div>
   );

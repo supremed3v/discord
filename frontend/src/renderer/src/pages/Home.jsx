@@ -46,8 +46,8 @@ function a11yProps(index) {
 
 export default function Home() {
   const [value, setValue] = React.useState(0);
-  const { user } = useAuth();
-  console.log(user);
+  const { user, jwt } = useAuth();
+  console.log(jwt);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -60,7 +60,11 @@ export default function Home() {
     const fetchSearchResults = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/user/search?q=${search}`
+          `http://localhost:5000/api/user/search?q=${search}`, {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
         );
         console.log(res.data);
         setSearchResults(res.data);

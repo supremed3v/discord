@@ -65,17 +65,19 @@ export const searchUser = async (req, res) => {
         { username: { $regex: q, $options: "i" } },
         { email: { $regex: q, $options: "i" } },
       ],
-    }).select("username avatar");
+    }).select("username avatar friends friendRequests friendRequestsSent");
 
     // Filter out the current user from the search results to prevent the user from sending a friend request to themselves and to prevent the user from sending a friend request to a user they are already friends with or have already sent a friend request to
+
     const filteredUsers = users.filter(
       (user) =>
-        user._id.toString() !== req.userID.toString() &&
-        !req.user.friends.includes(user._id) &&
-        !req.user.friendRequests.includes(user._id) &&
-        !req.user.friendRequestsSent.includes(user._id)
+        user._id.toString() !== req.userID &&
+        (!user.friends || !user.friends.includes(req.userID)) &&
+        (!user.friendRequests || !user.friendRequests.includes(req.userID)) &&
+        (!user.friendRequestsSent || !user.friendRequestsSent.includes(req.userID))
     );
-    if (!filteredUsers || users.filteredUsers === 0) {
+
+    if (!filteredUsers || filteredUsers.length === 0) {
       return res.status(400).json({ message: "User(s) not found" });
     }
     res.status(200).json(filteredUsers);
@@ -84,6 +86,7 @@ export const searchUser = async (req, res) => {
     res.status(500).json({ message: "Search failed" });
   }
 };
+
 
 export const getUserDetails = async (req, res, next) => {
   const user = await User.findById(req.userID).select("-password");
@@ -205,12 +208,32 @@ export const acceptFriendRequest = async (req, res) => {
 };
 
 
-export const getUserRequests = async (req, res) => {
+export const getUserSentRequests = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("friendRequests");
-    res.status(200).json(user.friendRequests);
+    const user = await User.findById(req.userID).populate(
+      {
+        path: "friendRequestsSent",
+        select: "-password",
+      }
+    )
+    res.status(200).json(user.friendRequestsSent);
   } catch (error) {
     console.error("Error fetching user requests", error);
     res.status(500).json({ message: "Failed to fetch user requests" });
   }
 };
+
+export const getUserRequests = async (req, res) => {
+  try {
+    const user = await User.findById(req.userID).populate(
+      {
+        path: "friendRequests",
+        select: "-password",
+      }
+    )
+    res.status(200).json(user.friendRequests);
+  } catch (error) {
+    console.error("Error fetching user requests", error);
+    res.status(500).json({ message: "Failed to fetch user requests" });
+  }
+}

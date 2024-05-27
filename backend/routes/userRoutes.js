@@ -7,6 +7,8 @@ import {
   sendFriendRequest,
   acceptFriendRequest,
   getUserDetails,
+  getUserRequests,
+  getUserSentRequests,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../utils/authMiddleware.js";
 import verifyUserToken from "../utils/verifyUserToken.js";
@@ -24,5 +26,8 @@ router.post("/friend-request", verifyUserToken, sendFriendRequest);
 router.post("/friend-request/accept", verifyUserToken, acceptFriendRequest);
 
 router.get("/me", verifyUserToken, getUserDetails);
+
+router.get("/my-friend-requests", verifyUserToken, getUserSentRequests);
+router.get("/incoming-friend-requests", verifyUserToken, getUserRequests);
 
 export default router;
