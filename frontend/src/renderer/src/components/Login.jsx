@@ -63,16 +63,18 @@ const Login = () => {
 
   const { login, loading, user } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle login or signup form submission here
     if (isSignup) {
       // Handle signup here
     } else {
       // Handle login here
-      login(formFields.email, formFields.password);
+      await login(formFields.email, formFields.password);
       if (loading) return <Loader />;
-      if (user) navigate("/");
+      if (user) {
+        navigate("/");
+      }
     }
   };
 

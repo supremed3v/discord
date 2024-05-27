@@ -4,7 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import { useAuth } from "../context/AuthContext";
-import { Divider, TextField, Box, Button } from "@mui/material";
+import { Divider, TextField, Box, Button, Avatar } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
@@ -92,7 +92,7 @@ export default function Home() {
         value={value}
         onChange={handleChange}
         aria-label="Vertical tabs example"
-        sx={{ borderRight: 1, borderColor: "divider", width: "240px" }}
+        sx={{ borderRight: 1, borderColor: "divider", width: "400px", marginRight: "10px", paddingRight: "10px" }}
       >
         <Tab
           {...a11yProps(0)}
@@ -142,8 +142,25 @@ export default function Home() {
         {search !== "" && (
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             {searchResults.map((result) => (
-              <Box key={result.username}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginTop: "10px",
+                }}
+              >
+                <Avatar src={result.avatar?.url} />
                 <Typography>{result.username}</Typography>
+                <Button
+                  variant="contained"
+                  sx={{
+                    marginLeft: "10px",
+                  }}
+                >
+                  Add
+                </Button>
               </Box>
             ))}
           </Box>

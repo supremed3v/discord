@@ -1,5 +1,5 @@
-import axios from "axios";
-import React, { createContext, useState, useContext, useEffect } from "react";
+import axios from 'axios';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -11,11 +11,10 @@ export function useAuth() {
 
 // AuthProvider component that wraps your application and provides the AuthContext
 export function AuthProvider({ children }) {
-  // State to store user data received from the backend
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [isMounted, setIsMounted] = useState(true);
+  const [jwt, setJwt] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -29,20 +28,19 @@ export function AuthProvider({ children }) {
     }
   }, [isMounted]);
 
-  // State to manage the authentication status
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Function to handle login (you can replace this with your actual login logic)
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/user/login", {
+      const res = await axios.post('http://localhost:5000/api/user/login', {
         email,
         password,
       });
       if (res.data.success) {
-        setUser(res.data.user);
-        setIsAuthenticated(true);
+        const token = res.data.token;
+        await storeToken(token);
+        loadUser();
       }
       setLoading(false);
     } catch (error) {
@@ -51,33 +49,51 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const loadUser = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/user/me", {
-        withCredentials: true,
-      });
-      setUser(res.data.data);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.log(error);
-      setUser(null);
-      setIsAuthenticated(false);
+  const storeToken = async (token) => {
+    if (await window.api.safeStorage.isEncryptionAvailable()) {
+      const encryptedToken = await window.api.safeStorage.encryptString(token);
+      localStorage.setItem('authToken', encryptedToken);
+    } else {
+      console.error('Safe storage is not available');
     }
   };
 
-  // Function to handle logout
-  const logout = () => {
-    // Implement your logout logic here, communicate with the backend if necessary.
-    // Clear user data and set isAuthenticated to false to indicate logged out state.
-    setUser(null);
-    setIsAuthenticated(false);
+  const retrieveToken = async () => {
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken && await window.api.safeStorage.isEncryptionAvailable()) {
+      return await window.api.safeStorage.decryptString(storedToken);
+    }
+    return null;
   };
 
-  // Provide the AuthContext values to the children components
+  const loadUser = useCallback(async () => {
+    const token = await retrieveToken();
+    setJwt(token);
+    if (token) {
+      try {
+        const res = await axios.get('http://localhost:5000/api/user/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUser(res.data.user);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log(error);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    }
+  }, []);
+
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('authToken');
+  };
+
   return (
-    <AuthContext.Provider
-      value={{ user, isAuthenticated, login, logout, loading, loadUser }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading, loadUser, jwt }}>
       {children}
     </AuthContext.Provider>
   );

@@ -18,6 +18,7 @@ import {
 } from "@mui/icons-material";
 import { Link, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import Home from "../pages/Home";
+import { useAuth } from "../context/AuthContext";
 
 const drawerWidth = 0;
 
@@ -98,12 +99,13 @@ const Dashboard = () => {
   const classes = useStyles();
   const location = useLocation();
 
-  console.log("rendered dashboard");
+  const { user } = useAuth();
+
 
   const drawerItems = [
-    { label: "Home", icon: <HomeIcon />, to: "/dashboard" },
-    { label: "Inbox", icon: <InboxIcon />, to: "/dashboard/inbox" },
-    { label: "Mail", icon: <MailIcon />, to: "/dashboard/mail" },
+    { label: "Home", icon: <HomeIcon />, to: "account" },
+    { label: "Inbox", icon: <InboxIcon />, to: "inbox" },
+    { label: "Mail", icon: <MailIcon />, to: "mail" },
   ];
 
   return (
@@ -124,7 +126,12 @@ const Dashboard = () => {
               key={label}
               component={Link}
               to={to}
-              selected={location.pathname === to}
+              selected={location.pathname.includes(to)}
+              style={
+                location.pathname.includes(to)
+                  ? { backgroundColor: "#3f444f" }
+                  : {}
+              }
             >
               <ListItemIcon className={classes.miniListItemIcon}>
                 {icon}
@@ -136,12 +143,12 @@ const Dashboard = () => {
       </Drawer>
       <main className={`${classes.content}`}>
         <div className={classes.toolbar} />
-        <Outlet>
-          <Route path="/dashboard" element={<Home />} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="account" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="mail" element={<Mail />} />
-          {/* Additional child routes can be added here */}
-        </Outlet>
+        </Routes>
       </main>
     </div>
   );

@@ -8,9 +8,8 @@ function App() {
   console.log("Rendering home");
   const { user, loadUser, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
+  console.log(user, isAuthenticated);
+
   return (
     <div
       className="container"
@@ -20,17 +19,20 @@ function App() {
         paddingRight: "0px",
         paddingBottom: "0px",
         marginTop: "0px",
-        marginLeft: "100px",
+        // marginLeft: "100px",
       }}
     >
       <Routes>
-        {isAuthenticated === true && user !== null ? (
-          <Route path="/" element={<Dashboard />} />
-        ) : (
-          <Route path="/" element={<Navigate to="/login" />} />
-        )}
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Home />} />
+        <Route exact path="/login" element={
+
+          isAuthenticated === true && user !== null ? <Navigate to="/" replace /> : <Login />
+
+        } />
+        <Route exact path="/*" element={
+          isAuthenticated === true && user !== null ? <Dashboard /> : <Navigate to="/login" replace />
+        } />
+
+        <Route path="/dashboard/*" element={<Dashboard />} />
       </Routes>
     </div>
   );

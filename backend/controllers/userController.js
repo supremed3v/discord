@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { getIO } from "../utils/socket.js";
 import { sendToken } from "../utils/authMiddleware.js";
+import { generateToken } from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
@@ -41,26 +42,15 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ $or: [{ username }, { email }] });
     if (!user) return res.status(400).json({ message: "User does not exist" });
-
-    console.log("User password from database:", user.password);
-    console.log("Provided password for login:", password);
-
-    // Trim the provided password to remove leading/trailing white spaces
     const trimmedPassword = password.trim();
-
-    console.log("Trimmed password:", trimmedPassword);
-    // check if password is correct
-
     const isPasswordValid = await bcrypt.compare(
       trimmedPassword,
       user.password
     );
-    console.log("result of password validation", isPasswordValid);
     if (!isPasswordValid)
       return res.status(400).json({ message: "Invalid Password" });
-
-    sendToken(user, 200, res);
-    // res.status(200).json({ message: "Login successful" });
+    const token = generateToken(user)
+    res.status(200).json({ success: true, token });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
     console.error("Login failed", error);
@@ -76,10 +66,19 @@ export const searchUser = async (req, res) => {
         { email: { $regex: q, $options: "i" } },
       ],
     }).select("username avatar");
-    if (!users || users.length === 0) {
+
+    // Filter out the current user from the search results to prevent the user from sending a friend request to themselves and to prevent the user from sending a friend request to a user they are already friends with or have already sent a friend request to
+    const filteredUsers = users.filter(
+      (user) =>
+        user._id.toString() !== req.userID.toString() &&
+        !req.user.friends.includes(user._id) &&
+        !req.user.friendRequests.includes(user._id) &&
+        !req.user.friendRequestsSent.includes(user._id)
+    );
+    if (!filteredUsers || users.filteredUsers === 0) {
       return res.status(400).json({ message: "User(s) not found" });
     }
-    res.status(200).json(users);
+    res.status(200).json(filteredUsers);
   } catch (error) {
     console.error("Error searching user", error);
     res.status(500).json({ message: "Search failed" });
@@ -87,7 +86,7 @@ export const searchUser = async (req, res) => {
 };
 
 export const getUserDetails = async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("-password");
+  const user = await User.findById(req.userID).select("-password");
   res.status(200).json({
     success: true,
     user,
@@ -202,5 +201,16 @@ export const acceptFriendRequest = async (req, res) => {
   } catch (error) {
     console.error("Error accepting friend request", error);
     res.status(500).json({ message: "Friend request failed" });
+  }
+};
+
+
+export const getUserRequests = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("friendRequests");
+    res.status(200).json(user.friendRequests);
+  } catch (error) {
+    console.error("Error fetching user requests", error);
+    res.status(500).json({ message: "Failed to fetch user requests" });
   }
 };
