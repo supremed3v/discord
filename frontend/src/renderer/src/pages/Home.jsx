@@ -170,7 +170,13 @@ export default function Home() {
           </Box>
         )}
       </TabPanel>
-      <TabPanel value={value} index={1}>
+      <TabPanel value={value} index={1}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+        }}
+      >
         <Friends userData={user} />
       </TabPanel>
       <TabPanel value={value} index={2}>

@@ -9,6 +9,7 @@ import {
   getUserDetails,
   getUserRequests,
   getUserSentRequests,
+  getUserFriends,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../utils/authMiddleware.js";
 import verifyUserToken from "../utils/verifyUserToken.js";
@@ -29,5 +30,7 @@ router.get("/me", verifyUserToken, getUserDetails);
 
 router.get("/my-friend-requests", verifyUserToken, getUserSentRequests);
 router.get("/incoming-friend-requests", verifyUserToken, getUserRequests);
+
+router.get("/my-friends", verifyUserToken, getUserFriends);
 
 export default router;

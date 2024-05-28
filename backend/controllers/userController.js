@@ -114,6 +114,11 @@ export const sendFriendRequest = async (req, res) => {
     if (recipient.friendRequestsSent.includes(recipientUsername))
       return res.status(400).json({ message: "Friend request already sent" });
 
+    // Check if the recipient is already a friend of the sender
+
+    if (sender.friends.includes(recipient._id))
+      return res.status(400).json({ message: "User is already a friend" });
+
     // Add the recipient to the sender's friendRequestsSent array
 
     sender.friendRequestsSent.push(recipient._id);
@@ -151,7 +156,6 @@ export const acceptFriendRequest = async (req, res) => {
     const { userId, friendId } = req.body;
 
     // Find the user and friend
-
     const user = await User.findById(userId);
     const friend = await User.findById(friendId);
 
@@ -159,44 +163,36 @@ export const acceptFriendRequest = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
 
     // Check if the user has received a friend request from the friend
-
     if (!user.friendRequests.includes(friendId))
       return res.status(400).json({ message: "No friend request received" });
 
-    // remove the friend from the user's friendRequests array
-
+    // Remove the friend from the user's friendRequests array
     user.friendRequests = user.friendRequests.filter(
-      (requestId) => requestId !== friendId
+      (requestId) => !requestId.equals(friendId)
     );
 
-    // remove the user from the friend's friendRequestsSent array
-
+    // Remove the user from the friend's friendRequestsSent array
     friend.friendRequestsSent = friend.friendRequestsSent.filter(
-      (requestId) => requestId !== userId
+      (requestId) => !requestId.equals(userId)
     );
 
     // Add the friend to the user's friends array
-
     user.friends.push(friendId);
 
     // Add the user to the friend's friends array
-
     friend.friends.push(userId);
 
     // Save the user and friend
-
     await user.save();
     await friend.save();
 
     // Emit a friend request accepted event to the friend using socket.io server
-
-    getIO().to(friend).emit("friend request Accepted", {
+    getIO().to(friendId).emit("friend request accepted", {
       userId: user._id,
     });
 
     // Emit a friend request accepted event to the user using socket.io server
-
-    getIO().to(user).emit("friend request Accepted", {
+    getIO().to(userId).emit("friend request accepted", {
       friendId: friend._id,
     });
 
@@ -237,3 +233,18 @@ export const getUserRequests = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch user requests" });
   }
 }
+
+export const getUserFriends = async (req, res) => {
+  try {
+    const user = await User.findById(req.userID).populate(
+      {
+        path: "friends",
+        select: "-password -friendRequests -friendRequestsSent",
+      }
+    )
+    res.status(200).json(user.friends);
+  } catch (error) {
+    console.error("Error fetching user friends", error);
+    res.status(500).json({ message: "Failed to fetch user friends" });
+  }
+};

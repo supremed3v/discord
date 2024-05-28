@@ -2,68 +2,66 @@ import { Box, Button, Divider, Typography } from "@mui/material";
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { useFetchCtx } from "../context/FetchContext";
 const Friends = () => {
-  const { user, jwt } = useAuth();
+  const { user, jwt, loadUser } = useAuth();
 
-  const [sentReq, setSentRequests] = React.useState([]);
-  const [incReq, setIncRequests] = React.useState([]);
+  const { friends, incomingFriendRequests, friendRequestsSent } = useFetchCtx();
 
-
-
-  React.useEffect(() => {
-    const fetchSentRequests = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/api/user/my-friend-requests`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-            },
+  const handleAcceptRequest = async (friendId) => {
+    try {
+      const res = await axios.post(`http://localhost:5000/api/user/friend-request/accept`, {
+        friendId,
+        userId: user._id
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            contentType: "application/json",
           }
-        );
-        console.log(res.data);
-        setSentRequests(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    const fetchIncomingRequest = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:5000/api/user/incoming-friend-requests`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwt}`,
-            },
-          }
-        );
-        console.log(res.data);
-        setIncRequests(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchIncomingRequest();
-    fetchSentRequests();
-  }, [])
-  console.log(user);
-  console.log(sentReq);
-  console.log("inc requests", incReq);
+        }
+      )
+
+      console.log("Accepted Req: ", res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
-    <Box>
-      <Typography>Friends</Typography>
+    <Box
+    >
+      <Typography
+        variant="h5">Friends</Typography>
+      {friends?.map((friend) => (
+        <Box key={friend._id}>
+          <Typography>{friend.username}</Typography>
+        </Box>
+      ))}
       <Divider />
       <Typography>Sent Requests</Typography>
-      {sentReq?.map((request) => (
+      {friendRequestsSent?.map((request) => (
         <Box key={request._id}>
           <Typography>{request.username}</Typography>
         </Box>
       ))}
 
-      {incReq?.map((request) => (
-        <Box key={request._id}>
+      {incomingFriendRequests?.map((request) => (
+        <Box key={request._id}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+          width={"100%"}
+          paddingY={2}
+        >
           <Typography>{request.username}</Typography>
-          <Button>Accept</Button>
+          <Button
+            onClick={() => handleAcceptRequest(request._id)}
+            variant="contained"
+            color="primary"
+          >Accept</Button>
         </Box>
       ))}
     </Box>
