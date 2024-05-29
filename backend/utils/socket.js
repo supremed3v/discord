@@ -2,6 +2,7 @@
 
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { User } from "../models/User.js";
 
 let io;
 
@@ -14,16 +15,32 @@ export const init = (app) => {
     // Additional configuration options can be added here
 
     cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
+      origin: ["http://localhost:3000", "http://localhost:5000", "http://localhost:5173"],
+      methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
   });
 
+  const onlineUsers = {};
   io.on("connection", (socket) => {
+    socket.on('online', async function (data) {
+      onlineUsers[socket.id] = data.userId;
+      try {
+        const doc = await User.findOneAndUpdate(
+          { _id: data.userId },
+          { online: true },
+          { new: true }
+        );
+        console.log("User online: ", doc.username);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     socket.on("callUser", ({ from, to }) => {
       socket.to(to).emit("callUser", { from, to });
     });
+
     socket.on("answerCall", ({ to, signal }) => {
       socket.to(to).emit("answerCall", { signal });
     });
@@ -32,8 +49,21 @@ export const init = (app) => {
       socket.to(to).emit("iceCandidate", { candidate });
     });
 
-    socket.on("disconnect", () => {
-      socket.broadcast.emit("callEnded");
+    socket.on("offline", async () => {
+      const userId = onlineUsers[socket.id];
+      if (userId) {
+        delete onlineUsers[socket.id];
+        try {
+          const doc = await User.findOneAndUpdate(
+            { _id: userId },
+            { online: false },
+            { new: true }
+          );
+          console.log("User offline: ", doc.username);
+        } catch (error) {
+          console.log(error);
+        }
+      }
     });
   });
 

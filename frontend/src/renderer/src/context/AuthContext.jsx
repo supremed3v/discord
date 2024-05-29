@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import socket from '../helpers/socket';
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -86,7 +87,19 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const online = () => {
+    socket.emit('online', { userId: user._id });
+    console.log('User online');
+  };
+
+  useEffect(() => {
+    if (user) {
+      online();
+    }
+  }, [user]);
+
   const logout = () => {
+    socket.emit('offline', { userId: user._id });
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('authToken');

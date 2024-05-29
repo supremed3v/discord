@@ -125,7 +125,9 @@ export default function Home() {
         />
         <Tab label="Nitro" {...a11yProps(4)} />
       </Tabs>
-      <TabPanel value={value} index={0}>
+      <TabPanel value={value} index={0}
+
+      >
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <TextField
             id="filled-basic"
@@ -133,6 +135,7 @@ export default function Home() {
             variant="filled"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: 240 }}
           />
           <Button
             sx={{
@@ -177,7 +180,16 @@ export default function Home() {
           width: "100%",
         }}
       >
-        <Friends userData={user} />
+        <Box
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+          }}
+        >
+
+          <Friends userData={user} />
+        </Box>
       </TabPanel>
       <TabPanel value={value} index={2}>
         Item Three
